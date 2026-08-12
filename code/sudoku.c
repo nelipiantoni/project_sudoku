@@ -70,6 +70,7 @@ int generate_tab(int tab[9][9], int row, int col){
     // vrednosti od 1 do 9 vstavljamo v tabelo
     for(int i = 0; i < 9; i++){
         int value = values[i];
+        
         // preverjamo ce vrednost lahko vstavimo v tabelo, vstopimo v funkcijo, ce check_value vrne 1
         if(check_value(tab, row, col, value)){
 
