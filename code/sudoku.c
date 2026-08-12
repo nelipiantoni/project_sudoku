@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include "sudoku.h"
 
 
@@ -55,9 +57,19 @@ int generate_tab(int tab[9][9], int row, int col){
         return 1;
     }
 
-    // vrednosti od 1 do 9 vstavljamo v tabelo
-    for(int value = 1; value <= 9; value++){
+    int values[9] = {1,2,3,4,5,6,7,8,9};
 
+    for(int i = 8; i > 0; i--){
+        int x = rand() % (i + 1);
+
+        int y = values[i];
+        values[i] = values[x];
+        values[x] = y;
+    }
+
+    // vrednosti od 1 do 9 vstavljamo v tabelo
+    for(int i = 0; i < 9; i++){
+        int value = values[i];
         // preverjamo ce vrednost lahko vstavimo v tabelo, vstopimo v funkcijo, ce check_value vrne 1
         if(check_value(tab, row, col, value)){
 
