@@ -59,6 +59,7 @@ int generate_tab(int tab[9][9], int row, int col){
 
     int values[9] = {1,2,3,4,5,6,7,8,9};
 
+    // algoritem za izbiranje nakljucnih stevil od 1 do 9
     for(int i = 8; i > 0; i--){
         int x = rand() % (i + 1);
 
@@ -67,10 +68,10 @@ int generate_tab(int tab[9][9], int row, int col){
         values[x] = y;
     }
 
-    // vrednosti od 1 do 9 vstavljamo v tabelo
+    // vstavljanje nakljucnih vrednosti iz tabele
     for(int i = 0; i < 9; i++){
         int value = values[i];
-        
+
         // preverjamo ce vrednost lahko vstavimo v tabelo, vstopimo v funkcijo, ce check_value vrne 1
         if(check_value(tab, row, col, value)){
 
@@ -109,4 +110,57 @@ void print_tab(int tab[9][9]){
         // preskok na naslednjo vrstico
         printf("\n");
     }
+}
+
+// stetje koliko resitev ima tabela po odstranjenem mestu
+int count_solutions(int tab[9][9], int row, int col, int *count){
+
+    // ko je tabela izpolnjena
+    if(row > 8){
+        // vrednost na naslovu kazalca se poveca za 1
+        (*count)++;
+        // return 1 poslje signal skozi vse prejsnje rekurzivne klice dokler ne pride nazaj do remove_value
+        if(*count >= 2){
+           return 1; 
+        }
+        // isce preostale resitve rekurzivno
+        return 0;
+    }
+
+    // ce je mesto v tabeli prazno
+    if(tab[row][col] == 0){
+        // puskusamo vrednosti od 1 do 9 na to mesto
+        for(int value = 1; value <= 9; value++){
+            //preveri ali smemo vstaviti vrednost na to mesto
+            if(check_value(tab, row, col, value)){
+                //spremenimo vrednost
+                tab[row][col] = value;
+                // ce nalsednji klic count_solution vraca 1 returna tudi to izvajanje 1
+                if(col < 8){
+                    if(count_solutions(tab, row, col + 1, count)){
+                        return 1;
+                    }
+                } else{
+                    if(count_solutions(tab, row + 1, 0, count)){
+                        return 1;
+                    }
+                }
+            }
+            tab[row][col] = 0;
+        }
+    // ce mesto v tabeli ni prazno, gledamo za naslednji klic count_solution ali je prazen, ce je funckija naprej tece
+    } else{
+    if(col < 8){
+        if(count_solutions(tab, row, col + 1, count)){
+            return 1;
+        }
+    } else{
+        if(count_solutions(tab, row + 1, 0, count)){
+            return 1;
+        }
+    }
+}
+    // ce nic od navedenega ne velja se vrnemo na prejsnji rekurzivni klic in iscemo naprej
+    return 0;
+
 }
