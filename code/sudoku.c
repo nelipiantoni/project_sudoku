@@ -138,10 +138,12 @@ int count_solutions(int tab[9][9], int row, int col, int *count){
                 // ce nalsednji klic count_solution vraca 1 returna tudi to izvajanje 1
                 if(col < 8){
                     if(count_solutions(tab, row, col + 1, count)){
+                        tab[row][col] = 0;
                         return 1;
                     }
                 } else{
                     if(count_solutions(tab, row + 1, 0, count)){
+                        tab[row][col] = 0;
                         return 1;
                     }
                 }
@@ -150,17 +152,35 @@ int count_solutions(int tab[9][9], int row, int col, int *count){
         }
     // ce mesto v tabeli ni prazno, gledamo za naslednji klic count_solution ali je prazen, ce je funckija naprej tece
     } else{
-    if(col < 8){
-        if(count_solutions(tab, row, col + 1, count)){
-            return 1;
+        if(col < 8){
+            if(count_solutions(tab, row, col + 1, count)){
+                return 1;
+            }
+        } else{
+            if(count_solutions(tab, row + 1, 0, count)){
+                return 1;
+            }
         }
-    } else{
-        if(count_solutions(tab, row + 1, 0, count)){
-            return 1;
-        }
-    }
 }
     // ce nic od navedenega ne velja se vrnemo na prejsnji rekurzivni klic in iscemo naprej
     return 0;
 
+}
+
+//odstranjuje vrednosti iz tabele, dokler ima tabela se vedno eno resitev
+void remove_values(int tab[9][9]){
+    for(int i = 0; i < 9; i++){
+        for(int j = 0; j < 9; j++){
+            //shrani staro vrednost, da je lahko vrnemo kasneje nazaj, ce tabela nima vec ene resitve
+            int old_value = tab[i][j];
+            tab[i][j] = 0;
+            int count = 0;
+
+            count_solutions(tab, 0, 0, &count);
+
+            if(count != 1){
+                tab[i][j] = old_value;
+            }
+        }
+    }
 }
