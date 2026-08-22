@@ -168,19 +168,51 @@ int count_solutions(int tab[9][9], int row, int col, int *count){
 }
 
 //odstranjuje vrednosti iz tabele, dokler ima tabela se vedno eno resitev
-void remove_values(int tab[9][9]){
-    for(int i = 0; i < 9; i++){
-        for(int j = 0; j < 9; j++){
-            //shrani staro vrednost, da je lahko vrnemo kasneje nazaj, ce tabela nima vec ene resitve
-            int old_value = tab[i][j];
-            tab[i][j] = 0;
-            int count = 0;
-
-            count_solutions(tab, 0, 0, &count);
-
-            if(count != 1){
-                tab[i][j] = old_value;
-            }
-        }
+int remove_values(int tab[9][9], int target_removed){
+    // preverja, da ne gremo cez meje odstranjevanja vrednosti
+    if(target_removed < 1 || target_removed > 64){
+        return 0;
     }
+
+    int removed = 0;
+    int positions[81];
+
+    for(int i = 0; i < 81; i++){
+        positions[i] = i;
+    }
+    // algoritem za randomizacijo mest v tabeli positions
+    for(int i = 80; i > 0; i--){
+        int x = rand() % (i + 1);
+
+        int y = positions[i];
+        positions[i] = positions[x];
+        positions[x] = y;
+    }
+
+    for(int i = 0; i < 81; i++){
+        int row = positions[i] / 9;
+        int col = positions[i] % 9;
+        //shrani staro vrednost, da je lahko vrnemo kasneje nazaj, ce tabela nima vec ene resitve
+        int old_value = tab[row][col];
+        tab[row][col] = 0;
+        int count = 0;
+        
+        count_solutions(tab, 0, 0, &count);
+
+        //ce je stevilo resitev enako 1 potem se poveca stevec za odstranjena stevila, drugace vrednost v tabeli vrnemo nazaj na prejsnjo
+        if(count == 1){
+            removed++;
+        } else{
+            tab[row][col] = old_value;
+        }
+
+        //ce smo dosegli zazeljeno stevilo odstranjenih stevil
+        if(target_removed == removed){
+            return 1;
+        }
+        
+    }
+    //ce smo pogledali celo tabelo in nismo dosegli clija
+    return 0;
 }
+

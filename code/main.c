@@ -14,14 +14,14 @@ int main(void){
     printf("Polna tabela:\n");
     print_tab(tab);
 
-    remove_value(tab);
+    int success = remove_values(tab, 63);
 
-    printf("\nSudoku uganka:\n");
-    print_tab(tab);
-
-    int count = 0;
-    count_solutions(tab, 0, 0, &count);
-    printf("\nStevilo resitev: %d\n", count);
+    if(success){
+        printf("\nSudoku uganka:\n");
+        print_tab(tab);
+    } else{
+        printf("\nNi uspelo odstraniti zazelenega stevila vrednosti.\n");
+    }
 
     return 0;
 }
