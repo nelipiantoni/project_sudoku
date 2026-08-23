@@ -9,20 +9,9 @@ int main(void){
 
     srand(time(NULL));
 
-    generate_tab(tab, 0, 0);
-
-    printf("Polna tabela:\n");
-    print_tab(tab);
-
-    int success = remove_values(tab, 63);
-
-    if(success){
-        printf("\nSudoku uganka:\n");
-        print_tab(tab);
-    } else{
-        printf("\nNi uspelo odstraniti zazelenega stevila vrednosti.\n");
-    }
+    generate_puzzle(tab, 55);
 
     return 0;
+
 }
 

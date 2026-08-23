@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
+#include <string.h>
 #include "sudoku.h"
+
 
 
 //funkcija za preverjanje, ali smemo stevilo sploh vstaviti na to mesto
@@ -119,7 +120,7 @@ int count_solutions(int tab[9][9], int row, int col, int *count){
     if(row > 8){
         // vrednost na naslovu kazalca se poveca za 1
         (*count)++;
-        // return 1 poslje signal skozi vse prejsnje rekurzivne klice dokler ne pride nazaj do remove_value
+        // return 1 poslje signal skozi vse prejsnje rekurzivne klice dokler ne pride nazaj do remove_values
         if(*count >= 2){
            return 1; 
         }
@@ -141,7 +142,7 @@ int count_solutions(int tab[9][9], int row, int col, int *count){
                         tab[row][col] = 0;
                         return 1;
                     }
-                } else{
+                }else{
                     if(count_solutions(tab, row + 1, 0, count)){
                         tab[row][col] = 0;
                         return 1;
@@ -150,21 +151,20 @@ int count_solutions(int tab[9][9], int row, int col, int *count){
             }
             tab[row][col] = 0;
         }
-    // ce mesto v tabeli ni prazno, gledamo za naslednji klic count_solution ali je prazen, ce je funckija naprej tece
-    } else{
+    }else{
+        // ce mesto ni prazno, ga preskocimo in nadaljujemo na naslednje mesto
         if(col < 8){
             if(count_solutions(tab, row, col + 1, count)){
                 return 1;
             }
-        } else{
+        }else{
             if(count_solutions(tab, row + 1, 0, count)){
                 return 1;
-            }
+             }
         }
-}
+    }
     // ce nic od navedenega ne velja se vrnemo na prejsnji rekurzivni klic in iscemo naprej
     return 0;
-
 }
 
 //odstranjuje vrednosti iz tabele, dokler ima tabela se vedno eno resitev
@@ -215,4 +215,37 @@ int remove_values(int tab[9][9], int target_removed){
     //ce smo pogledali celo tabelo in nismo dosegli clija
     return 0;
 }
+
+
+int generate_puzzle(int tab[9][9], int target_removed){
+    int full_tab[9][9] = {0};
+    int success = 0;
+    int attempts = 0;
+    int max_attempts = 150;
+    // poskusamo generirati novo uganko, dokler ne dosezemo zazelenega
+    // stevila odstranjenih vrednosti ali maksimalnega stevila poskusov
+    while(success == 0 && attempts < max_attempts){ 
+        memset(tab, 0, sizeof(tab[0][0]) * 81);
+       
+        generate_tab(tab, 0, 0);
+        // shranimo polno resitev, preden zacnemo odstranjevati vrednosti
+        memcpy(full_tab, tab, sizeof(full_tab));
+
+        success = remove_values(tab, target_removed);
+
+        attempts++;
+    }
+    // generiranje ni uspelo v maksimalnem stevilu poskusov
+    if(success == 0){
+         return 0;
+    }
+
+    printf("Polna tabela:\n");
+    print_tab(full_tab);
+    printf("\nSudoku uganka:\n");
+    print_tab(tab);
+
+    return 1;
+}
+
 
