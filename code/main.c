@@ -1,11 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 #include "sudoku.h"
 
 
 int main(void){
     int tab[9][9] = {0};
+    int original[9][9] = {0};
+    int solution[9][9] ={0};
     int difficulty;
     int target_removed;
 
@@ -25,9 +28,14 @@ int main(void){
         return 1;
     }
 
+    if(!generate_puzzle(tab, solution, target_removed)){
+        printf("Sudokuja ni uspelo generirati.\n");
+        return 1;
+    }
     
+    memcpy(original, tab, sizeof(original));
 
-    generate_puzzle(tab, target_removed);
+    play_sudoku(tab, original, solution);
 
     return 0;
 

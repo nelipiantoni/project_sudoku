@@ -9,4 +9,10 @@ int remove_values(int tab[9][9], int target_removed);
 
 int count_solutions(int tab[9][9], int row, int col, int *count);
 
-int generate_puzzle(int tab[9][9], int target_removed);
+int generate_puzzle(int tab[9][9],int solution[9][9], int target_removed);
+
+int play_sudoku(int tab[9][9], int original[9][9], int solution[9][9]);
+
+int is_complete(int tab[9][9]);
+
+int check_solution(int tab[9][9], int solution[9][9]);

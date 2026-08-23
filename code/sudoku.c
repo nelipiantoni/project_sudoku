@@ -217,7 +217,7 @@ int remove_values(int tab[9][9], int target_removed){
 }
 
 
-int generate_puzzle(int tab[9][9], int target_removed){
+int generate_puzzle(int tab[9][9], int solution[9][9], int target_removed){
     int full_tab[9][9] = {0};
     int success = 0;
     int attempts = 0;
@@ -240,11 +240,69 @@ int generate_puzzle(int tab[9][9], int target_removed){
          return 0;
     }
 
-    printf("Polna tabela:\n");
-    print_tab(full_tab);
-    printf("\nSudoku uganka:\n");
-    print_tab(tab);
+    memcpy(solution, full_tab, sizeof(full_tab));
 
+    return 1;
+}
+// omogoca uporabniku vnasanje vrednosti, dokler tabela ni izpolnjena 
+int play_sudoku(int tab[9][9], int original[9][9], int solution[9][9]){
+    int row, col, value;
+
+    while(1){
+        print_tab(tab);
+
+        // uporabnik vnasa vrstice in stolpce od 1 do 9
+        printf("Vnesi indeks vrstice, stolpca in vrednosti.\n");
+        scanf("%d %d %d", &row, &col, &value);
+        
+        // preverimo veljavnost vnesenih vrednosti
+        if(row < 10 && 0 < row && col < 10 && 0 < col && value < 10 && 0 < value){
+            
+            // pretvorba vnosa v zapis z indeksi
+            row = row - 1;
+            col = col - 1;
+            
+            //dovoljeno spreminjati le mesta ki so v originalni tabeli 0
+            if(original[row][col] == 0){
+                tab[row][col] = value;
+            }else{
+                printf("Zacetnih vrednosti ne smete spreminjati.\n");
+            }
+        }else{
+            printf("Neveljavna vrednost.\n");
+        }
+        // ko je tabela zapolnjena, preverimo ali se ujema s pravilno resitvijo
+        if(is_complete(tab)){
+            if(check_solution(tab, solution)){
+                printf("Cestitke, resitev je pravilna.\n");
+                return 1;
+            }else{
+                printf("Resitev ni pravilna. Poskusi popraviti napake.\n");
+            }
+        }
+    }
+}
+// preveri ali so vsa mesta v tabeli zapolnjena
+int is_complete(int tab[9][9]){
+
+    for(int i = 0; i < 9; i++){
+        for(int j = 0; j < 9; j++){
+            if(tab[i][j] == 0){
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+// preveri ali se uporabnikova tabela ujema s pravilno resitvijo
+int check_solution(int tab[9][9], int solution[9][9]){
+    for(int i = 0; i < 9; i++){
+        for(int j = 0; j < 9; j++ ){
+            if(tab[i][j] != solution[i][j]){
+                return 0;
+            }
+        }
+    }
     return 1;
 }
 
