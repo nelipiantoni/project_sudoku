@@ -5,12 +5,12 @@
 
 
 
-//funkcija za preverjanje, ali smemo stevilo sploh vstaviti na to mesto
+// preveri ali lahko vrednost vstavimo na podano mesto
 int check_value(int tab[9][9], int row, int col, int value){
     int start_row;
     int start_col;
 
-    //preverja vrstico
+    // preverja vrstico
     for(int i = 0; i < 9; i++){
         if(tab[row][i] == value){
             return 0;
@@ -19,10 +19,10 @@ int check_value(int tab[9][9], int row, int col, int value){
     // preverja stolpec
     for(int i = 0; i < 9; i++){
         if(tab[i][col] == value){
-                    return 0;
-                }
+            return 0;
+        }
     }
-    // isce zacetno vrstico in stolpec pregledovanja za kvadrat
+    // doloci zacetno vrstico in stolpec pripadajocega 3x3 kvadrata
     if(row < 3){
         start_row = 0;
     } else if(row < 6){
@@ -38,7 +38,7 @@ int check_value(int tab[9][9], int row, int col, int value){
         start_col = 6;
     }
 
-    // pregleduje kvadrat
+    // preverja pripadajoc 3x3 kvadrat
     for(int i = start_row; i < start_row + 3; i++){
         for(int j = start_col; j < start_col + 3; j++){
             if(tab[i][j] == value){
@@ -46,21 +46,21 @@ int check_value(int tab[9][9], int row, int col, int value){
             }
         }
     }
-    // ce funkcija prej ni vrnila 0 (false), vrne true kar pomeni, da lahko vstavimo stevilo 
+    // vrednost lahko vstavimo na podano mesto
     return 1;
 }
 
-// funkcija za generiranje tabele z rekurzijo
+// generira polno sudoku tabelo z rekurzijo in backtrackingom
 int generate_tab(int tab[9][9], int row, int col){
 
-    //prisli smo cez zadnjo vrstico, tabela je uspesno zgenerirana
+    // ce smo prisli cez zadnjo vrstico je tabela uspesno generirana
     if(row > 8){
         return 1;
     }
 
     int values[9] = {1,2,3,4,5,6,7,8,9};
 
-    // algoritem za izbiranje nakljucnih stevil od 1 do 9
+    // nakljucno premesamo vrstni red vrednosti od 1 do 9
     for(int i = 8; i > 0; i--){
         int x = rand() % (i + 1);
 
@@ -69,17 +69,17 @@ int generate_tab(int tab[9][9], int row, int col){
         values[x] = y;
     }
 
-    // vstavljanje nakljucnih vrednosti iz tabele
+    // poskusamo vrednosti v nakljucnem vrstnem redu
     for(int i = 0; i < 9; i++){
         int value = values[i];
 
-        // preverjamo ce vrednost lahko vstavimo v tabelo, vstopimo v funkcijo, ce check_value vrne 1
+        // preverimo ali lahko vrednost vstavimo na trenutno mesto
         if(check_value(tab, row, col, value)){
 
             // vstavimo vrednost v tabelo
             tab[row][col] = value;
 
-            // preverimo ali bomo v zadnjem stolpcu, ce bomo, rekurzivni premik v naslednjo vrstico
+            // rekurzivno nadaljujemo na naslednje mesto v tabeli
             if(col < 8){
                 if(generate_tab(tab, row, col + 1)){
                     return 1;
@@ -89,38 +89,51 @@ int generate_tab(int tab[9][9], int row, int col){
                     return 1;
                 }
             }
-
             // ce rekurzija vraca 0, izbrisemo neuspesen poizkus iz tabele
             tab[row][col] = 0;
         }
     }
-    // na temu mestu ni mozne veljavlne vrednosti, gremo en rekurzivni korak nazaj
+    // ce ni mogoce vstaviti nobene veljavne vrednosti, izvedemo backtracking
     return 0;
-    
 }
 
-//printa generirano polno tabelo v terminal
+//izpise sudoku tabelo v pregledni obliki
 void print_tab(int tab[9][9]){
 
-    // gremo cez vsa mesta v tabeli
     for(int i = 0; i < 9; i++){
-        for(int j = 0; j < 9; j++){
-            // print vsake vrednosti v vrstici
-            printf("%d ", tab[i][j]);
+        // izpise vodoravno crto med 3x3 kvadrati
+        if(i % 3 == 0){
+            printf("+-------+-------+-------+\n");
         }
-        // preskok na naslednjo vrstico
+
+        for(int j = 0; j < 9; j++){
+            if(j % 3 == 0){
+                printf("| ");
+            }
+            if(tab[i][j] == 0){
+                printf(". ");
+            }else{
+                printf("%d ", tab[i][j]);
+            }
+            if(j % 8 == 0 && j != 0){
+                printf("|");
+            }
+        }
         printf("\n");
+        if(i == 8){
+            printf("+-------+-------+-------+\n");
+        }
     }
 }
 
-// stetje koliko resitev ima tabela po odstranjenem mestu
+// rekurzivno presteje resitve sudoku tabele do najvec dveh resitev
 int count_solutions(int tab[9][9], int row, int col, int *count){
 
     // ko je tabela izpolnjena
     if(row > 8){
-        // vrednost na naslovu kazalca se poveca za 1
+        // najdena je nova resitev zato povecamo stevec
         (*count)++;
-        // return 1 poslje signal skozi vse prejsnje rekurzivne klice dokler ne pride nazaj do remove_values
+        // ko najdemo drugo resitev prekinemo nadaljnje iskanje
         if(*count >= 2){
            return 1; 
         }
@@ -132,11 +145,10 @@ int count_solutions(int tab[9][9], int row, int col, int *count){
     if(tab[row][col] == 0){
         // puskusamo vrednosti od 1 do 9 na to mesto
         for(int value = 1; value <= 9; value++){
-            //preveri ali smemo vstaviti vrednost na to mesto
+            // preverimo ali lahko vrednost vstavimo na trenutno mesto
             if(check_value(tab, row, col, value)){
-                //spremenimo vrednost
                 tab[row][col] = value;
-                // ce nalsednji klic count_solution vraca 1 returna tudi to izvajanje 1
+                // ce je bila najdena druga resitev, signal vrnemo skozi rekurzivne klice
                 if(col < 8){
                     if(count_solutions(tab, row, col + 1, count)){
                         tab[row][col] = 0;
@@ -160,16 +172,16 @@ int count_solutions(int tab[9][9], int row, int col, int *count){
         }else{
             if(count_solutions(tab, row + 1, 0, count)){
                 return 1;
-             }
+            }
         }
     }
-    // ce nic od navedenega ne velja se vrnemo na prejsnji rekurzivni klic in iscemo naprej
+    // vrnemo se na prejsnji rekurzivni klic in nadaljujemo iskanje
     return 0;
 }
 
-//odstranjuje vrednosti iz tabele, dokler ima tabela se vedno eno resitev
+// odstranjuje vrednosti iz tabele, dokler ostane natanko ena resitev
 int remove_values(int tab[9][9], int target_removed){
-    // preverja, da ne gremo cez meje odstranjevanja vrednosti
+    // preveri, ali je zeleno stevilo odstranjenih mest v dovoljenem razponu
     if(target_removed < 1 || target_removed > 64){
         return 0;
     }
@@ -177,10 +189,11 @@ int remove_values(int tab[9][9], int target_removed){
     int removed = 0;
     int positions[81];
 
+    // ustvarimo seznam vseh 81 mest v tabeli
     for(int i = 0; i < 81; i++){
         positions[i] = i;
     }
-    // algoritem za randomizacijo mest v tabeli positions
+    // nakljucno premesamo vrstni red mest za odstranjevanje
     for(int i = 80; i > 0; i--){
         int x = rand() % (i + 1);
 
@@ -190,41 +203,42 @@ int remove_values(int tab[9][9], int target_removed){
     }
 
     for(int i = 0; i < 81; i++){
+        // indeks mesta pretvorimo v vrstico in stolpec
         int row = positions[i] / 9;
         int col = positions[i] % 9;
-        //shrani staro vrednost, da je lahko vrnemo kasneje nazaj, ce tabela nima vec ene resitve
+        // shranimo vrednost, da jo lahko vrnemo, ce odstranitev porusi enolicnost
         int old_value = tab[row][col];
         tab[row][col] = 0;
         int count = 0;
         
         count_solutions(tab, 0, 0, &count);
 
-        //ce je stevilo resitev enako 1 potem se poveca stevec za odstranjena stevila, drugace vrednost v tabeli vrnemo nazaj na prejsnjo
+        // odstranitev obdrzimo samo ce ima tabela se vedno eno resitev
         if(count == 1){
             removed++;
         } else{
             tab[row][col] = old_value;
         }
 
-        //ce smo dosegli zazeljeno stevilo odstranjenih stevil
+        // ce smo dosegli zazeljeno stevilo odstranjenih mest
         if(target_removed == removed){
             return 1;
         }
-        
     }
-    //ce smo pogledali celo tabelo in nismo dosegli clija
+    // pregledali smo vsa mesta, vendar nismo dosegli cilja
     return 0;
 }
 
-
+// generira novo sudoku uganko in shrani njeno polno resitev
 int generate_puzzle(int tab[9][9], int solution[9][9], int target_removed){
     int full_tab[9][9] = {0};
     int success = 0;
     int attempts = 0;
     int max_attempts = 150;
-    // poskusamo generirati novo uganko, dokler ne dosezemo zazelenega
-    // stevila odstranjenih vrednosti ali maksimalnega stevila poskusov
+    // generiranje ponavljamo dokler ne dosezemo zazelenega
+    // stevila odstranjenih mest ali maksimalnega stevila poskusov
     while(success == 0 && attempts < max_attempts){ 
+        // pred novim poskusom pocistimo tabelo
         memset(tab, 0, sizeof(tab[0][0]) * 81);
        
         generate_tab(tab, 0, 0);
@@ -237,32 +251,43 @@ int generate_puzzle(int tab[9][9], int solution[9][9], int target_removed){
     }
     // generiranje ni uspelo v maksimalnem stevilu poskusov
     if(success == 0){
-         return 0;
+        return 0;
     }
-
+    // uspesno generirano polno tabelo shranimo kot pravilno resitev
     memcpy(solution, full_tab, sizeof(full_tab));
 
     return 1;
 }
-// omogoca uporabniku vnasanje vrednosti, dokler tabela ni izpolnjena 
+
+// omogoca uporabniku resevanje sudokuja, dokler ni resitev pravilna
 int play_sudoku(int tab[9][9], int original[9][9], int solution[9][9]){
     int row, col, value;
 
     while(1){
         print_tab(tab);
 
-        // uporabnik vnasa vrstice in stolpce od 1 do 9
+        // uporabnik vnese vrstico, stolpec in vrednost od 1 do 9
         printf("Vnesi indeks vrstice, stolpca in vrednosti.\n");
-        scanf("%d %d %d", &row, &col, &value);
-        
+        if(scanf("%d %d %d", &row, &col, &value) != 3){
+            // napacen format vnosa
+            printf("Neveljaven vnos.\n");
+
+            // pocistimo se preostanek napacnega vnosa iz stdin do konca vrstice
+            int vnos = getchar();
+
+            while(vnos != '\n' && vnos != EOF){
+                vnos = getchar();
+            }
+            continue;
+        }
         // preverimo veljavnost vnesenih vrednosti
         if(row < 10 && 0 < row && col < 10 && 0 < col && value < 10 && 0 < value){
             
-            // pretvorba vnosa v zapis z indeksi
+            // pretvorimo uporabniski vnos 1-9 v indekse 0-8
             row = row - 1;
             col = col - 1;
             
-            //dovoljeno spreminjati le mesta ki so v originalni tabeli 0
+            // spreminjamo lahko samo mesta, ki so bila v zacetni uganki prazna
             if(original[row][col] == 0){
                 tab[row][col] = value;
             }else{
@@ -271,7 +296,7 @@ int play_sudoku(int tab[9][9], int original[9][9], int solution[9][9]){
         }else{
             printf("Neveljavna vrednost.\n");
         }
-        // ko je tabela zapolnjena, preverimo ali se ujema s pravilno resitvijo
+        // ko je tabela zapolnjena preverimo, ali je resitev pravilna
         if(is_complete(tab)){
             if(check_solution(tab, solution)){
                 printf("Cestitke, resitev je pravilna.\n");
@@ -282,6 +307,7 @@ int play_sudoku(int tab[9][9], int original[9][9], int solution[9][9]){
         }
     }
 }
+
 // preveri ali so vsa mesta v tabeli zapolnjena
 int is_complete(int tab[9][9]){
 
@@ -294,10 +320,11 @@ int is_complete(int tab[9][9]){
     }
     return 1;
 }
+
 // preveri ali se uporabnikova tabela ujema s pravilno resitvijo
 int check_solution(int tab[9][9], int solution[9][9]){
     for(int i = 0; i < 9; i++){
-        for(int j = 0; j < 9; j++ ){
+        for(int j = 0; j < 9; j++){
             if(tab[i][j] != solution[i][j]){
                 return 0;
             }
