@@ -291,7 +291,7 @@ int play_sudoku(int tab[9][9], int original[9][9], int solution[9][9]){
             if(original[row][col] == 0){
                 tab[row][col] = value;
             }else{
-                printf("Zacetnih vrednosti ne smete spreminjati.\n");
+                printf("Zacetnih vrednosti ne smete spreminjati. :)\n");
             }
         }else{
             printf("Neveljavna vrednost.\n");
