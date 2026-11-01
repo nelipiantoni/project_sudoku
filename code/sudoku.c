@@ -22,21 +22,9 @@ int check_value(int tab[9][9], int row, int col, int value){
             return 0;
         }
     }
-    // doloci zacetno vrstico in stolpec pripadajocega 3x3 kvadrata
-    if(row < 3){
-        start_row = 0;
-    } else if(row < 6){
-        start_row = 3;
-    } else{
-        start_row = 6;
-    }
-    if(col < 3){
-        start_col = 0;
-    } else if(col < 6){
-        start_col = 3;
-    } else{
-        start_col = 6;
-    }
+     // doloci zacetno vrstico in stolpec pripadajocega 3x3 kvadrata
+    start_row = (row / 3) * 3;
+    start_col = (col / 3) * 3;
 
     // preverja pripadajoc 3x3 kvadrat
     for(int i = start_row; i < start_row + 3; i++){
@@ -48,6 +36,138 @@ int check_value(int tab[9][9], int row, int col, int value){
     }
     // vrednost lahko vstavimo na podano mesto
     return 1;
+}
+
+// zamenja dve vrstici v sudoku tabeli
+void swap_rows(int tab[9][9], int row1, int row2){
+
+    // zamenjamo vrednosti v posameznih stolpcih obeh vrstic
+    for(int j = 0; j < 9; j++){
+        int temp = tab[row1][j];
+        tab[row1][j] = tab[row2][j];
+        tab[row2][j] = temp;
+    }
+}
+
+
+// zamenja dva stolpca v sudoku tabeli
+void swap_columns(int tab[9][9], int col1, int col2){
+
+    // zamenjamo vrednosti v posameznih vrsticah obeh stolpcev
+    for(int i = 0; i < 9; i++){
+        int temp = tab[i][col1];
+        tab[i][col1] = tab[i][col2];
+        tab[i][col2] = temp;
+    }
+}
+
+// zamenja dve skupini treh vrstic v sudoku tabeli
+void swap_row_groups(int tab[9][9], int group1, int group2){
+
+    // zamenjamo vse tri vrstice obeh skupin
+    for(int i = 0; i < 3; i++){
+        swap_rows(tab, group1 * 3 + i, group2 * 3 + i);
+    }
+}
+
+// zamenja dve skupini treh stolpcev v sudoku tabeli
+void swap_column_groups(int tab[9][9], int group1, int group2){
+
+    // zamenjamo vse tri stolpce obeh skupin
+    for(int i = 0; i < 3; i++){
+        swap_columns(tab, group1 * 3 + i, group2 * 3 + i);
+    }
+}
+
+// zamenja dve vrednosti v celotni sudoku tabeli
+void swap_values(int tab[9][9], int value1, int value2){
+
+    // zamenjamo vse pojavitve obeh vrednosti v tabeli
+    for(int i = 0; i < 9; i++){
+        for(int j = 0; j < 9; j++){
+            if(tab[i][j] == value1){
+                tab[i][j] = value2;
+            }else if(tab[i][j] == value2){
+                tab[i][j] = value1;
+            }
+        }
+    }
+}
+
+// ustvari zacetno veljavno sudoku tabelo
+void create_base_tab(int tab[9][9]){
+
+    int base_tab[9][9] = {
+        {1,2,3,4,5,6,7,8,9},
+        {4,5,6,7,8,9,1,2,3},
+        {7,8,9,1,2,3,4,5,6},
+        {2,3,4,5,6,7,8,9,1},
+        {5,6,7,8,9,1,2,3,4},
+        {8,9,1,2,3,4,5,6,7},
+        {3,4,5,6,7,8,9,1,2},
+        {6,7,8,9,1,2,3,4,5},
+        {9,1,2,3,4,5,6,7,8}
+    };
+
+    // kopiramo zacetno tabelo v podano tabelo
+    memcpy(tab, base_tab, sizeof(base_tab));
+}
+
+// nakljucno premesa veljavno sudoku tabelo z dovoljenimi zamenjavami
+void randomize_tab(int tab[9][9]){
+
+    int group1;
+    int group2;
+    int row1;
+    int row2;
+    int col1;
+    int col2;
+    int value1;
+    int value2;
+
+    // nakljucno zamenjamo vrstici znotraj iste skupine treh vrstic
+    for(int i = 0; i < 10; i++){
+        group1 = rand() % 3;
+        row1 = group1 * 3 + rand() % 3;
+        row2 = group1 * 3 + rand() % 3;
+
+        while(row1 == row2){
+            row2 = group1 * 3 + rand() % 3;
+        }
+
+        swap_rows(tab, row1, row2);
+    }
+
+    // nakljucno zamenjamo stolpca znotraj iste skupine treh stolpcev
+    for(int i = 0; i < 10; i++){
+        group1 = rand() % 3;
+        col1 = group1 * 3 + rand() % 3;
+        col2 = group1 * 3 + rand() % 3;
+
+        while(col1 == col2){
+            col2 = group1 * 3 + rand() % 3;
+        }
+
+        swap_columns(tab, col1, col2);
+    }
+
+    // nakljucno zamenjamo skupine treh vrstic
+    group1 = rand() % 3;
+    group2 = (group1 + 1 + rand() % 2) % 3;
+
+    swap_row_groups(tab, group1, group2);
+
+    // nakljucno zamenjamo skupine treh stolpcev
+    group1 = rand() % 3;
+    group2 = (group1 + 1 + rand() % 2) % 3;
+
+    swap_column_groups(tab, group1, group2);
+
+    // nakljucno zamenjamo oznaki dveh stevilk
+    value1 = (rand() % 9) + 1;
+    value2 = (value1 + rand() % 8) % 9 + 1;
+
+    swap_values(tab, value1, value2);
 }
 
 // generira polno sudoku tabelo z rekurzijo in backtrackingom
@@ -128,54 +248,80 @@ void print_tab(int tab[9][9]){
 
 // rekurzivno presteje resitve sudoku tabele do najvec dveh resitev
 int count_solutions(int tab[9][9], int row, int col, int *count){
+    // parametra sta ostala zaradi obstoječih klicev funkcije
+    (void)row;
+    (void)col;
+    
+    int best_row = -1;
+    int best_col = -1;
+    int best_options = 10;
+    int best_values[9];
+    int best_values_count = 0;
 
-    // ko je tabela izpolnjena
-    if(row > 8){
-        // najdena je nova resitev zato povecamo stevec
-        (*count)++;
-        // ko najdemo drugo resitev prekinemo nadaljnje iskanje
-        if(*count >= 2){
-           return 1; 
-        }
-        // isce preostale resitve rekurzivno
-        return 0;
-    }
+    
 
-    // ce je mesto v tabeli prazno
-    if(tab[row][col] == 0){
-        // puskusamo vrednosti od 1 do 9 na to mesto
-        for(int value = 1; value <= 9; value++){
-            // preverimo ali lahko vrednost vstavimo na trenutno mesto
-            if(check_value(tab, row, col, value)){
-                tab[row][col] = value;
-                // ce je bila najdena druga resitev, signal vrnemo skozi rekurzivne klice
-                if(col < 8){
-                    if(count_solutions(tab, row, col + 1, count)){
-                        tab[row][col] = 0;
-                        return 1;
+    // poiscemo prazno mesto z najmanj moznostmi
+    for(int i = 0; i < 9; i++){
+        for(int j = 0; j < 9; j++){
+            if(tab[i][j] == 0){
+                int candidates[9];
+                int options = 0;
+
+                // shranimo dovoljene vrednosti za trenutno prazno mesto
+                for(int value = 1; value <= 9; value++){
+                    if(check_value(tab, i, j, value)){
+                        candidates[options] = value;
+                        options++;
                     }
-                }else{
-                    if(count_solutions(tab, row + 1, 0, count)){
-                        tab[row][col] = 0;
-                        return 1;
+                }
+
+                // ce mesto nima nobene moznosti, ta veja nima resitve
+                if(options == 0){
+                    return 0;
+                }
+
+                // shranimo mesto z najmanj moznostmi
+                if(options < best_options){
+                    best_options = options;
+                    best_row = i;
+                    best_col = j;
+                    best_values_count = options;
+
+                    // shranimo dovoljene vrednosti za najboljse prazno mesto
+                    for(int k = 0; k < options; k++){
+                        best_values[k] = candidates[k];
                     }
                 }
             }
-            tab[row][col] = 0;
-        }
-    }else{
-        // ce mesto ni prazno, ga preskocimo in nadaljujemo na naslednje mesto
-        if(col < 8){
-            if(count_solutions(tab, row, col + 1, count)){
-                return 1;
-            }
-        }else{
-            if(count_solutions(tab, row + 1, 0, count)){
-                return 1;
-            }
         }
     }
-    // vrnemo se na prejsnji rekurzivni klic in nadaljujemo iskanje
+
+    // ce ni vec praznih mest, smo nasli resitev
+    if(best_row == -1){
+        (*count)++;
+
+        // ko najdemo drugo resitev, prekinemo iskanje
+        if(*count >= 2){
+            return 1;
+        }
+
+        return 0;
+    }
+
+    // poskusimo vse dovoljene vrednosti na izbranem mestu
+    for(int k = 0; k < best_values_count; k++){
+        int value = best_values[k];
+        tab[best_row][best_col] = value;
+
+        if(count_solutions(tab, 0, 0, count)){
+            tab[best_row][best_col] = 0;
+            return 1;
+        }
+
+        // odstranimo poskusno vrednost pred naslednjim poskusom
+        tab[best_row][best_col] = 0;
+    }
+
     return 0;
 }
 
@@ -186,73 +332,96 @@ int remove_values(int tab[9][9], int target_removed){
         return 0;
     }
 
+    int full_tab[9][9];
+    memcpy(full_tab, tab, sizeof(full_tab));
+
+    int max_retries = 2;
     int removed = 0;
     int positions[81];
 
-    // ustvarimo seznam vseh 81 mest v tabeli
-    for(int i = 0; i < 81; i++){
-        positions[i] = i;
-    }
-    // nakljucno premesamo vrstni red mest za odstranjevanje
-    for(int i = 80; i > 0; i--){
-        int x = rand() % (i + 1);
+    for(int attempt = 0; attempt < max_retries; attempt++){
+        // pred vsakim poskusom obnovimo polno tabelo
+        memcpy(tab, full_tab, sizeof(full_tab));
+        removed = 0;
 
-        int y = positions[i];
-        positions[i] = positions[x];
-        positions[x] = y;
-    }
-
-    for(int i = 0; i < 81; i++){
-        // indeks mesta pretvorimo v vrstico in stolpec
-        int row = positions[i] / 9;
-        int col = positions[i] % 9;
-        // shranimo vrednost, da jo lahko vrnemo, ce odstranitev porusi enolicnost
-        int old_value = tab[row][col];
-        tab[row][col] = 0;
-        int count = 0;
-        
-        count_solutions(tab, 0, 0, &count);
-
-        // odstranitev obdrzimo samo ce ima tabela se vedno eno resitev
-        if(count == 1){
-            removed++;
-        } else{
-            tab[row][col] = old_value;
+        // ustvarimo seznam vseh 81 mest v tabeli
+        for(int i = 0; i < 81; i++){
+            positions[i] = i;
         }
 
-        // ce smo dosegli zazeljeno stevilo odstranjenih mest
-        if(target_removed == removed){
-            return 1;
+        // nakljucno premesamo vrstni red mest za odstranjevanje
+        for(int i = 80; i > 0; i--){
+            int x = rand() % (i + 1);
+
+            int y = positions[i];
+            positions[i] = positions[x];
+            positions[x] = y;
+        }
+
+        for(int i = 0; i < 81; i++){
+            // indeks mesta pretvorimo v vrstico in stolpec
+            int row = positions[i] / 9;
+            int col = positions[i] % 9;
+
+            // shranimo vrednost, da jo lahko vrnemo, ce odstranitev porusi enolicnost
+            int old_value = tab[row][col];
+            tab[row][col] = 0;
+            int count = 0;
+
+            count_solutions(tab, 0, 0, &count);
+
+            // odstranitev obdrzimo samo ce ima tabela se vedno eno resitev
+            if(count == 1){
+                removed++;
+            } else{
+                tab[row][col] = old_value;
+            }
+
+            // ce smo dosegli zazeljeno stevilo odstranjenih mest
+            if(removed == target_removed){
+                return 1;
+            }
         }
     }
-    // pregledali smo vsa mesta, vendar nismo dosegli cilja
+
+    // vsi poskusi so bili neuspesni
+    memcpy(tab, full_tab, sizeof(full_tab));
     return 0;
 }
 
 // generira novo sudoku uganko in shrani njeno polno resitev
 int generate_puzzle(int tab[9][9], int solution[9][9], int target_removed){
-    int full_tab[9][9] = {0};
+    int full_tab[9][9];
+    int base_tab[9][9];
     int success = 0;
     int attempts = 0;
     int max_attempts = 150;
+
+    // ustvarimo zacetno veljavno sudoku tabelo
+    create_base_tab(base_tab);
+
     // generiranje ponavljamo dokler ne dosezemo zazelenega
     // stevila odstranjenih mest ali maksimalnega stevila poskusov
-    while(success == 0 && attempts < max_attempts){ 
-        // pred novim poskusom pocistimo tabelo
-        memset(tab, 0, sizeof(tab[0][0]) * 81);
-       
-        generate_tab(tab, 0, 0);
+    while(success == 0 && attempts < max_attempts){
+
+        // kopiramo zacetno tabelo in jo nakljucno premesamo
+        memcpy(tab, base_tab, sizeof(base_tab));
+        randomize_tab(tab);
+
         // shranimo polno resitev, preden zacnemo odstranjevati vrednosti
         memcpy(full_tab, tab, sizeof(full_tab));
 
+        // poskusimo odstraniti zazeleno stevilo vrednosti
         success = remove_values(tab, target_removed);
 
         attempts++;
     }
+
     // generiranje ni uspelo v maksimalnem stevilu poskusov
     if(success == 0){
         return 0;
     }
+
     // uspesno generirano polno tabelo shranimo kot pravilno resitev
     memcpy(solution, full_tab, sizeof(full_tab));
 
