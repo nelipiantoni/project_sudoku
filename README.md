@@ -13,15 +13,19 @@ Program omogoča:
 - zaščito začetnih vrednosti pred spreminjanjem,
 - preverjanje pravilnosti končne rešitve.
 
-Pri generiranju polne Sudoku tabele je uporabljen rekurzivni backtracking algoritem. Pri ustvarjanju uganke program naključno odstranjuje vrednosti in po vsaki odstranitvi preveri število možnih rešitev. Odstranitev obdrži samo, če ima uganka še vedno natanko eno rešitev.
+Pri generiranju polne Sudoku tabele program naključno premeša vnaprej pripravljeno veljavno tabelo z dovoljenimi zamenjavami vrstic, stolpcev, skupin vrstic, skupin stolpcev in številk. Pri ustvarjanju uganke program naključno odstranjuje vrednosti in po vsaki odstranitvi preveri število možnih rešitev. Odstranitev obdrži samo, če ima uganka še vedno natanko eno rešitev. Če želenega števila odstranjenih mest ne doseže, dvakrat poskusi na isti polni tabeli, šele nato premeša novo.
+
+Število rešitev se šteje rekurzivno z backtrackingom. V vsakem koraku se izbere prazno polje z najmanj možnimi vrednostmi (MRV), iskanje pa se ustavi, ko je najdena druga rešitev.
 
 ## Težavnosti
 
 Težavnost je določena s številom odstranjenih vrednosti:
 
-- Easy: 40–45 odstranjenih mest
-- Medium: 46–52 odstranjenih mest
-- Hard: 53–59 odstranjenih mest
+- Easy: 41–46 odstranjenih mest
+- Medium: 47–53 odstranjenih mest
+- Hard: 54–60 odstranjenih mest
+
+Pri večjem številu odstranjenih mest (Hard) lahko generiranje traja dlje.
 
 ## Struktura projekta
 
@@ -51,7 +55,7 @@ Program nato zaženemo z:
 
 ## Uporaba
 
-Ob zagonu uporabnik najprej izbere težavnost. Nato se v terminalu izpiše generirana Sudoku uganka.
+Ob zagonu uporabnik najprej izbere težavnost. Nato se v terminalu izpiše čas generiranja in generirana Sudoku uganka.
 
 Potezo uporabnik vnese v obliki:
 
