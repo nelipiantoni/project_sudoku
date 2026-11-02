@@ -169,7 +169,7 @@ void randomize_tab(int tab[9][9]){
 
     swap_values(tab, value1, value2);
 }
-
+/* stara verzija funkcije generiranja tabele
 // generira polno sudoku tabelo z rekurzijo in backtrackingom
 int generate_tab(int tab[9][9], int row, int col){
 
@@ -216,7 +216,7 @@ int generate_tab(int tab[9][9], int row, int col){
     // ce ni mogoce vstaviti nobene veljavne vrednosti, izvedemo backtracking
     return 0;
 }
-
+*/
 //izpise sudoku tabelo v pregledni obliki
 void print_tab(int tab[9][9]){
 
