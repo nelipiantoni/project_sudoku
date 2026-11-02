@@ -21,11 +21,11 @@ int main(void){
     }
     
     if(difficulty == 1){
-        target_removed = (rand() % 6) + 43;
+    target_removed = (rand() % 6) + 41;
     }else if(difficulty == 2){
-        target_removed = (rand() % 7) + 49;
+        target_removed = (rand() % 7) + 47;
     }else if(difficulty == 3){
-        target_removed = (rand() % 7) + 56;
+        target_removed = (rand() % 7) + 54;
     }else{
         printf("Napacno vstavljena vrednost. Tezavnost ne obstaja.\n");
         return 1;
